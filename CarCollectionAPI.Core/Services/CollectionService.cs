@@ -1,8 +1,11 @@
 ﻿namespace CarCollectionAPI.Core.Services
 {
+    using CarCollectionAPI.Core.DTOs;
     using CarCollectionAPI.Core.Interfaces;
     using CarCollectionAPI.Data.Data;
     using CarCollectionAPI.Data.Models;
+    using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
 
     public class CollectionService : ICollectionService
     {
@@ -13,7 +16,25 @@
             context = _context;
         }
 
-        public bool CreateCollection(Collection model)
+        public async Task<List<Collection>> GetAllCollections()
+        {
+            var collections = await context.Collections.ToListAsync();
+            return collections;
+        }
+
+        public async Task<Collection> GetCollectionById(string id)
+        {
+            var collection = await context.Collections.FirstOrDefaultAsync(c=>c.Id == id);
+
+            if (collection == null)
+            {
+                return null;
+            }
+
+            return collection;
+        }
+
+        public async Task<bool> CreateCollection(CollectionCreateDTO model)
         {
             bool isCreated = false;
 
@@ -22,10 +43,16 @@
                 isCreated = false;
             }
 
+            var collection = new Collection()
+            {
+                Name = model.Name,
+                Description = model.Description,
+            };
+
             try
             {
-                context.Add<Collection>(model);
-                context.SaveChanges();
+                await context.AddAsync<Collection>(collection);
+                await context.SaveChangesAsync();
 
                 isCreated = true;
             }
@@ -33,8 +60,10 @@
             {
                 isCreated = false;
             }
-            
+
             return isCreated;
         }
+
+        
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace CarCollectionAPI.Controllers
 {
+    using CarCollectionAPI.Core.DTOs;
     using CarCollectionAPI.Core.Interfaces;
-    using CarCollectionAPI.Data.Models;
     using Microsoft.AspNetCore.Mvc;
 
     [Route("api/[controller]")]
@@ -16,21 +16,30 @@
         }
 
         [HttpGet("GetAll")]
-        public IEnumerable<string> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            var collections = await collectionService.GetAllCollections();
+
+            return Ok(collections);
         }
 
         [HttpGet("GetById")]
-        public string GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
-            return "value";
+            var collection = await collectionService.GetCollectionById(id);
+
+            if (collection == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(collection);
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(Collection model)
+        public async Task<IActionResult> Create(CollectionCreateDTO model)
         {
-            var created = collectionService.CreateCollection(model);
+            var created = await collectionService.CreateCollection(model);
 
             if (!created)
             {
