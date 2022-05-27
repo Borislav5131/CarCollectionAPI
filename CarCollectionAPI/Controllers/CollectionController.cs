@@ -50,13 +50,29 @@
         }
 
         [HttpPut("Edit")]
-        public void Edit(int id, [FromBody] string value)
+        public async Task<IActionResult> Edit(string id, CollectionEditDTO model)
         {
+            var editCollection = await collectionService.EditCollection(id, model);
+
+            if (editCollection == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(editCollection);
         }
 
         [HttpDelete("Delete")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
+            var isDeleted = await collectionService.DeleteCollection(id);
+
+            if (!isDeleted)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
         }
     }
 }

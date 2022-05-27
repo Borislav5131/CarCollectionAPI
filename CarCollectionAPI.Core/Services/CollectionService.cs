@@ -24,7 +24,7 @@
 
         public async Task<Collection> GetCollectionById(string id)
         {
-            var collection = await context.Collections.FirstOrDefaultAsync(c=>c.Id == id);
+            var collection = await context.Collections.FirstOrDefaultAsync(c => c.Id == id);
 
             if (collection == null)
             {
@@ -64,6 +64,58 @@
             return isCreated;
         }
 
-        
+        public async Task<Collection> EditCollection(string id, CollectionEditDTO model)
+        {
+            var collection = await context.Collections.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (collection == null || model == null)
+            {
+                return null;
+            }
+
+            if (model.Name != "string")
+            {
+                collection.Name = model.Name;
+            }
+
+            if (model.Description != "string")
+            {
+                collection.Description = model.Description;
+            }
+
+            try
+            {
+                context.Update(collection);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return collection;
+        }
+
+        public async Task<bool> DeleteCollection(string id)
+        {
+            var collection = await context.Collections.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (collection == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                context.Collections.Remove(collection);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
